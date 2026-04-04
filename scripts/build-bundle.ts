@@ -263,6 +263,11 @@ const buildOptions: esbuild.BuildOptions = {
   },
 
 
+  // Load markdown files as plain text strings
+  loader: {
+    '.md': 'text',
+  },
+
   // Handle the .js → .ts resolution that the codebase uses
   resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
 
