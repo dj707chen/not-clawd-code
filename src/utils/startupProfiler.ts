@@ -63,6 +63,7 @@ if (SHOULD_PROFILE) {
  * Record a checkpoint with the given name
  */
 export function profileCheckpoint(name: string): void {
+  console.debug(`[startupProfiler] checkpoint: ${name}`)
   if (!SHOULD_PROFILE) return
 
   const perf = getPerformance()

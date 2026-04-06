@@ -98,6 +98,8 @@ function collectMissingRelativeImports(): MissingImport[] {
 const args = process.argv.slice(2)
 const missingImports = collectMissingRelativeImports()
 
+console.log(`[dev-entry.ts] ${MACRO.VERSION} (Claude Code) - DJ's test launcher`);
+
 if (args.includes('--version')) {
   if (missingImports.length > 0) {
     console.log(`${pkg.version} (restored dev workspace)`)

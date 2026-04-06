@@ -31,13 +31,14 @@ if (feature('ABLATION_BASELINE') && process.env.CLAUDE_CODE_ABLATION_BASELINE) {
  * Fast-path for --version has zero imports beyond this file.
  */
 async function main(): Promise<void> {
+  console.log('[cli.tsx] main() invoked'); // debug log to confirm entry point is hit
   const args = process.argv.slice(2);
 
   // Fast-path for --version/-v: zero module loading needed
   if (args.length === 1 && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
     // MACRO.VERSION is inlined at build time
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${MACRO.VERSION} (Claude Code)`);
+    console.log(`${MACRO.VERSION} (Claude Code) - https://claude.ai/code`);
     return;
   }
 
@@ -51,6 +52,7 @@ async function main(): Promise<void> {
   // Used by prompt sensitivity evals to extract the system prompt at a specific commit.
   // Ant-only: eliminated from external builds via feature flag.
   if (feature('DUMP_SYSTEM_PROMPT') && args[0] === '--dump-system-prompt') {
+    console.log('[cli.tsx] cli_dump_system_prompt_path');
     profileCheckpoint('cli_dump_system_prompt_path');
     const {
       enableConfigs
@@ -70,6 +72,7 @@ async function main(): Promise<void> {
     return;
   }
   if (process.argv[2] === '--claude-in-chrome-mcp') {
+    console.log('[cli.tsx] cli_claude_in_chrome_mcp_path');
     profileCheckpoint('cli_claude_in_chrome_mcp_path');
     const {
       runClaudeInChromeMcpServer
@@ -77,6 +80,7 @@ async function main(): Promise<void> {
     await runClaudeInChromeMcpServer();
     return;
   } else if (process.argv[2] === '--chrome-native-host') {
+    console.log('[cli.tsx] cli_chrome_native_host_path');
     profileCheckpoint('cli_chrome_native_host_path');
     const {
       runChromeNativeHost
@@ -84,6 +88,7 @@ async function main(): Promise<void> {
     await runChromeNativeHost();
     return;
   } else if (feature('CHICAGO_MCP') && process.argv[2] === '--computer-use-mcp') {
+    console.log('[cli.tsx] cli_computer_use_mcp_path');
     profileCheckpoint('cli_computer_use_mcp_path');
     const {
       runComputerUseMcpServer
@@ -111,6 +116,7 @@ async function main(): Promise<void> {
   // isBridgeEnabled() checks the runtime GrowthBook gate.
   if (feature('BRIDGE_MODE') && (args[0] === 'remote-control' || args[0] === 'rc' || args[0] === 'remote' || args[0] === 'sync' || args[0] === 'bridge')) {
     profileCheckpoint('cli_bridge_path');
+    console.log('[cli.tsx] cli_bridge_path');
     const {
       enableConfigs
     } = await import('../utils/config.js');
@@ -163,6 +169,7 @@ async function main(): Promise<void> {
 
   // Fast-path for `claude daemon [subcommand]`: long-running supervisor.
   if (feature('DAEMON') && args[0] === 'daemon') {
+    console.log('[cli.tsx] cli_daemon_path');
     profileCheckpoint('cli_daemon_path');
     const {
       enableConfigs
@@ -183,6 +190,7 @@ async function main(): Promise<void> {
   // Session management against the ~/.claude/sessions/ registry. Flag
   // literals are inlined so bg.js only loads when actually dispatching.
   if (feature('BG_SESSIONS') && (args[0] === 'ps' || args[0] === 'logs' || args[0] === 'attach' || args[0] === 'kill' || args.includes('--bg') || args.includes('--background'))) {
+    console.log('[cli.tsx] cli_bg_path');
     profileCheckpoint('cli_bg_path');
     const {
       enableConfigs
@@ -210,6 +218,7 @@ async function main(): Promise<void> {
 
   // Fast-path for template job commands.
   if (feature('TEMPLATES') && (args[0] === 'new' || args[0] === 'list' || args[0] === 'reply')) {
+    console.log('[cli.tsx] cli_templates_path');
     profileCheckpoint('cli_templates_path');
     const {
       templatesMain
@@ -224,6 +233,7 @@ async function main(): Promise<void> {
   // Fast-path for `claude environment-runner`: headless BYOC runner.
   // feature() must stay inline for build-time dead code elimination.
   if (feature('BYOC_ENVIRONMENT_RUNNER') && args[0] === 'environment-runner') {
+    console.log('[cli.tsx] cli_environment_runner_path');
     profileCheckpoint('cli_environment_runner_path');
     const {
       environmentRunnerMain
@@ -236,6 +246,7 @@ async function main(): Promise<void> {
   // targeting the SelfHostedRunnerWorkerService API (register + poll; poll IS
   // heartbeat). feature() must stay inline for build-time dead code elimination.
   if (feature('SELF_HOSTED_RUNNER') && args[0] === 'self-hosted-runner') {
+    console.log('[cli.tsx] cli_self_hosted_runner_path');
     profileCheckpoint('cli_self_hosted_runner_path');
     const {
       selfHostedRunnerMain
@@ -247,6 +258,7 @@ async function main(): Promise<void> {
   // Fast-path for --worktree --tmux: exec into tmux before loading full CLI
   const hasTmuxFlag = args.includes('--tmux') || args.includes('--tmux=classic');
   if (hasTmuxFlag && (args.includes('-w') || args.includes('--worktree') || args.some(a => a.startsWith('--worktree=')))) {
+    console.log('[cli.tsx] cli_tmux_worktree_fast_path');
     profileCheckpoint('cli_tmux_worktree_fast_path');
     const {
       enableConfigs
@@ -272,6 +284,7 @@ async function main(): Promise<void> {
       }
     }
   }
+  console.debug('[cli.tsx] no fast path matched, loading full CLI'); // debug log to confirm when no fast path is hit
 
   // Redirect common update flag mistakes to the update subcommand
   if (args.length === 1 && (args[0] === '--update' || args[0] === '--upgrade')) {
